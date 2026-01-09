@@ -17,7 +17,8 @@ body {
 /* 見出しのデザイン */
 h1 {
     color: #2c3e50;
-    border-bottom: 3px solid #3498db;
+    /* border-bottom: 3px solid #3498db; */
+    border-bottom: 3px solid #00ff83; /* SEN::DAC コーポレートカラー */
     padding-bottom: 10px;
 }
 
