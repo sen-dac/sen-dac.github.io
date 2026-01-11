@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>SEN::DAC</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="icon" href="../favicon.png" type="image/png">
+</head>
+
+<body>
+<!-- サイト全体のタイトル リンクを指定しているので改めてテキストの色指定をしている-->
+<h1><a href="../index.html" style="color: #00ff83; text-decoration: none;">SEN::DAC - playground -</a></h1>
+
+<!-- ページのタイトル -->
+<h2>DMA "CPUを介さずデータ転送する魔法" 第1話</h2>
+<img src="17070073410588309.png" alt="HD63450CP10" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+
+<h3>Archive Note：</h3>
+こちらは X68000 Z コミュニティサイト(Z-CLUB) 投稿記事の再構成ログです。<br>
+元投稿：<a href="https://dev.zuiki.com/project-z/community/post/detail/940">https://dev.zuiki.com/project-z/community/post/detail/940</a><br>
+<br>
+
+<h3>2024-02-17 投稿：</h3>
+
+フェルン「フリーレン様、また魔導書(X68000関連の古書)ですか。今度はどのような魔法なのでしょう？」<br>
+<br>
+フリーレン「ダイレクト・メモリ・アクセス "CPUを介さずデータ転送する魔法" だよ。」<br>
+<br>
+フェルン「変な魔法ばかり集めていますね。」<br>
+<br>
+フリーレン「趣味だからね。」<br>
+<br>
+：<br>
+<br>
+X68000におけるDMA転送が成功した興奮により、変なテンションで始めてしまいました。<br>
+申し訳ありません。<br>
+<br>
+折角ですので学習した内容をアウトプットさせていただきます。<br>
+第1回目となる今回は、まずコピペ(写経)でも良いので、いきなりDMA転送をやってみましょう。<br>
+<br>
+僕の環境はGCC2 + LIBC 1.1.32Aです。<br>
+それ以外の方は取り合えずビルドしてみて、上手くいかない場合は適当に通るよう修正して下さい。<br>
+
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;iocslib.h&gt;
+
+// ↓↓DMAC(チャンネル#2)のレジスタ↓↓             // ↓↓各レジスタのざっくり説明(僕の勝手な解釈)↓↓
+//
+#define DMAC2CH_CSR (*((unsigned char*)0xE84080))   // 今の状態を色々教えてくれる所
+#define DMAC2CH_DCR (*((unsigned char*)0xE84084))   // どんな風に使うのか設定する所
+#define DMAC2CH_OCR (*((unsigned char*)0xE84085))   // どんな風に動作してほしいか設定する所
+#define DMAC2CH_SCR (*((unsigned char*)0xE84086))   // 転送元と転送先が転送毎に移動するかどうか決める所
+#define DMAC2CH_CCR (*((unsigned char*)0xE84087))   // いざ動かすときの操作レバーみたいな所
+#define DMAC2CH_MTC (*((unsigned short*)0xE8408A))  // 転送回数を書いておく所(転送毎に減り0になると動作終了)
+#define DMAC2CH_MAR (*((void**)0xE8408C))           // 転送元アドレスか転送先アドレス(どちらにするかはOCRで決める)
+#define DMAC2CH_DAR (*((void**)0xE84094))           // 転送元アドレスか転送先アドレス(どちらにするかはOCRで決める)
+#define DMAC2CH_MFC (*((unsigned char*)0xE840A9))   // MARのアクセスがユーザーなのかスーパーバイザなのか決める
+#define DMAC2CH_CPR (*((unsigned char*)0xE840AD))   // チャンネル#2の優先順位を決める所
+#define DMAC2CH_DFC (*((unsigned char*)0xE840B1))   // DARのアクセスがユーザーなのかスーパーバイザなのか決める
+
+unsigned char src[9]  = "X68000 Z";                 // 転送元メモリ
+unsigned char dst[20] = "HOGE_FUGA_PIYO_ABCD";      // 転送先メモリ
+
+void main(void)
+{
+    int ssp = B_SUPER(0);
+
+    DMAC2CH_CSR = 0xFF; // 使用前にフラグをクリアしないとエラーになる(CSRは1を書くとクリアするやつぽい)
+    DMAC2CH_DCR = 0x08; // 16ビットポートに設定(メモリ→メモリ転送は通常16ビットポートに設定するらしい)
+    DMAC2CH_OCR = 0x01; // MARからDARに転送する設定, 転送サイズを8ビットに設定
+    DMAC2CH_SCR = 0x05; // MARとDARのアドレス共に転送を行う度にインクリメントさせる設定
+    DMAC2CH_CCR = 0x00; // 転送開始ビットのクリア及び使わない機能に寝てもらう設定
+    DMAC2CH_MTC = 0x08; // 転送元が8文字なので転送回数を8回に設定
+    DMAC2CH_MAR = src;  // 転送元のアドレス(OCRにてMARを転送元アドレスを示す所として設定した)
+    DMAC2CH_DAR = dst;  // 転送先のアドレス(OCRにてDARを転送先アドレスを示す所として設定した)
+    DMAC2CH_MFC = 0x05; // MARが保持するアドレスへはスーパーバイザ状態でアクセスするように設定
+    DMAC2CH_CPR = 0x03; // 優先度は最低にしてみた(他チャンネル接続先のFDDやHDDやADPCMの方が重要だと思う)
+    DMAC2CH_DFC = 0x05; // DARが保持するアドレスへはスーパーバイザ状態でアクセスするように設定
+
+    printf("\n\n");
+    printf("--- DMA転送 実行前 ---\n");
+    printf("転送元 : %s\n", src);
+    printf("転送先 : %s\n", dst);
+    printf("\n");
+
+    printf("DMA転送開始!!\n");
+    DMAC2CH_CCR |= 0x80;            // 転送開始
+    while(!(DMAC2CH_CSR & 0x90));   // 完了(bit7) または エラー(bit4)が1になったら抜ける
+
+    printf("\n");
+    printf("--- DMA転送 実行後 ---\n");
+    printf("転送元 : %s\n", src);
+    printf("転送先 : %s\n", dst);
+    printf("\n");
+
+    B_SUPER(ssp);
+}
+</code></pre>
+
+実行すると転送元と転送先が同じ文字列になるはずです。<br>
+では、実行。<br>
+<br>
+
+実行結果：<br>
+<pre><code>--- DMA転送 実行前 ---
+転送元 : X68000 Z
+転送先 : HOGE_FUGA_PIYO_ABCD
+
+DMA転送開始!!
+
+--- DMA転送 実行後 ---
+転送元 : X68000 Z
+転送先 : X68000 ZA_PIYO_ABCD
+</code></pre>
+
+あ...？あれっ？？何？？？ "X68000 ZA_PIYO_ABCD" って？！<br>
+<br>
+あっ！そっか～！null文字かぁ～！！ (わざとらしい？w)<br>
+<br>
+そんな訳で、転送回数を指定するレジスタであるMTCレジスタへの設定値を変更してみます。<br>
+<br>
+
+変更前：
+<pre><code>DMAC2CH_MTC = 0x08;	// 転送元が8文字なので転送回数を8回に設定</code></pre>
+変更後：
+<pre><code>DMAC2CH_MTC = 0x09;	// 転送元が8文字なので転送回数を9回に設定(8文字 + null文字)</code></pre>
+
+修正が終わったら再度、コンパイルして実行してみましょう。<br>
+
+<br>
+実行結果(修正後)：<br>
+<pre><code>--- DMA転送 実行前 ---
+転送元 : X68000 Z
+転送先 : HOGE_FUGA_PIYO_ABCD
+
+DMA転送開始!!
+
+--- DMA転送 実行後 ---
+転送元 : X68000 Z
+転送先 : X68000 Z
+</code></pre>
+
+よし！大成功ですね！！<br>
+<br>
+今回は、とにかくDMAを触ってみることを目的として、転送回数を変更して動作を確認しました。<br>
+<br>
+次回は、X68000(Z)ならではの事情も交えつつ、もっと深掘りしてみたいと思います。<br>
+<br>
+レジスタ一覧、及び詳細を知りたい場合は、以下に有志の方が書いてくれていますので見てみましょう。<br>
+<a href="https://gamesx.com/wiki/doku.php?id=x68000:dmac">https://gamesx.com/wiki/doku.php?id=x68000:dmac</a><br>
+
+<br>
+ヤフオク等で運良く「Inside X68000」という古文書を入手できれば、これが日本語で分かりやすいです。<br>
+僕も主に「Inside X68000」で学習しました。<br>
+<br>
+COCORO BOOKSで手に入るサービスマニュアル(DMAの事は少ししか載ってませんが)も参考になります。<br>
+HD63450のデータシート(X68k的な事はもちろん載っていませんが)も可能であれば見ておきたいですね。<br>
+<br>
+：<br>
+<br>
+
+フリーレン「原理がわからないまま使っているから応用ができないってこと。メモリ→メモリ転送しかできない。」<br>
+<br>
+
+シュタルク「なるほど。」<br>
+<br>
+
+本日のまとめ：魔法は、自由だ。<br>
+<br>
+
+・次回：第2話は<a href="../DMA_2_Z953/DMA_2_Z953.html">コチラ</a><br>
+<br>
+<br>
+<br>
+<!-- (C)表記をしない方針とするものの、テキストの終端は明示する-->
+<div style="color: #00ff83;">[EOF]</div>
+</body>
+</html>
