@@ -58,3 +58,17 @@ pre code span {
     font-size: inherit !important;
     letter-spacing: 0 !important;
 }
+
+/*************************************************************/
+/* コードブロックの横スクロール(スマホ表示対策)              */
+/*************************************************************/
+pre, code {
+    /* 自動改行を無効にする */
+    white-space: pre;
+    /* 横方向にはみ出した場合にスクロールバーを表示する */
+    overflow-x: auto;
+    /* ブロック要素として表示 */
+    display: block;
+    /* スマートフォンでのスクロールを滑らかにする */
+    -webkit-overflow-scrolling: touch;
+}
