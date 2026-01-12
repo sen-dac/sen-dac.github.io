@@ -2,37 +2,30 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>SEN::DAC</title>
+    <title>DMA 3 | SEN::DAC</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="icon" href="../favicon.png" type="image/png">
 </head>
 
 <body>
 <!-- サイト全体のタイトル リンクを指定しているので改めてテキストの色指定をしている-->
-<h1><a href="../index.html" style="color: #00ff83; text-decoration: none;">SEN::DAC - playground -</a></h1>
+<h1><a href="../index.html" style="color: #00ff83; text-decoration: none;">SEN::DAC - Laboratory -</a></h1>
 
 <!-- ページのタイトル -->
 <h2>DMA "CPUを介さずデータ転送する魔法" 第3話</h2>
 <img src="17103197030656098.png" alt="表紙画像" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
 
-<h3>Archive Note：</h3>
-こちらは X68000 Z コミュニティサイト(Z-CLUB) 投稿記事の再構成ログです。<br>
 <br>
-元投稿：<br>
-<a href="https://dev.zuiki.com/project-z/community/post/detail/976">https://dev.zuiki.com/project-z/community/post/detail/976</a><br>
-<a href="https://dev.zuiki.com/project-z/community/post/detail/977">https://dev.zuiki.com/project-z/community/post/detail/977</a><br>
-<a href="https://dev.zuiki.com/project-z/community/post/detail/978">https://dev.zuiki.com/project-z/community/post/detail/978</a><br>
-<br>
+<div style="display: flex; justify-content: space-between;">
+    <span><a href="../DMA_2_Z953/DMA_2_Z953.html"><< 前の記事へ</a></span>
+    <span><a href="../DMA_4_Z1002/DMA_4_Z1002.html">次の記事へ >></a></span>
+</div>
 
 <h3>2024-03-23 投稿：</h3>
 
 前回に引き続き、DMAに関する学習内容のアウトプットをさせていただきます。<br>
 よろしければ、お付き合いください。<br>
 <br>
-・第1話は<a href="../DMA_1_Z940/DMA_1_Z940.html">コチラ</a><br>
-・第2話は<a href="../DMA_2_Z953/DMA_2_Z953.html">コチラ</a><br>
-<br>
-
 前回は、DMAC(63450)を使用するにあたり、設定が必要な項目を洗い出して方針を定めました。<br>
 今回は、この方針に基づき各レジスタの詳細を確認しながら具体的な設定値を決めていきたいと思います。<br>
 <br>
@@ -240,14 +233,16 @@ CSRのフラグをクリアしたタイミングで、このエラーコード�
 確認環境：CompactXVI,　XM6TypeG ver.3.36,　X68000 Z EAK/PE F.W ver.1.6.2<br>
 <br>
 転送に失敗した場合、このレジスタのエラーコードを確認すれば、ある程度は原因の目星がつけられます。<br>
+<br>
 
-<p style="color: #f4a460;">
+<font style="color: #f4a460;">
 注意点として、2024/03/23 現在、X68000 Z EAK/PE F.W ver.1.6.2 では、エラーコードが実機と異なる値になる場合があります。<br>
 また、エラー時に実機では転送を中止しますが、Zは中途半端な転送を行いデータを破壊してしまうパターンもあります。<br>
 <br>
 Z-CLUBに調査結果を投稿しています。<br>
-<a href="https://dev.zuiki.com/project-z/community/post/detail/990">https://dev.zuiki.com/project-z/community/post/detail/990</a><br>
-</p>
+<a href="../DMA_A_Z990/DMA_A_Z990.html">X68000 Z(FW.ver.1.6.2)はDMA転送エラー時の挙動が実機と異なる</a><br>
+</font>
+<br>
 
 Read onlyのためCERに設定値はありません。<br>
 <br>
@@ -662,10 +657,26 @@ BARは複数ブロック転送を行う場合に使う物なので、今回の�
 <h3>次回予告</h3>
 
 今回は、各レジスタの詳細を確認しながら具体的な設定値を決めました。<br>
-次回は、今回決めた設定値を基にコーディングを行いたいと思います。<br>
+次回は、今回決めた設定値を基にコーディングを行っていきます。<br>
 <br>
-・第1話は<a href="../DMA_1_Z940/DMA_1_Z940.html">コチラ</a><br>
-・第2話は<a href="../DMA_2_Z953/DMA_2_Z953.html">コチラ</a><br>
+
+<h3>Link</h3>
+・<a href="../DMA_1_Z940/DMA_1_Z940.html">第1話 はこちら</a><br>
+・<a href="../DMA_2_Z953/DMA_2_Z953.html">第2話 はこちら</a><br>
+・<a href="../DMA_3_Z976/DMA_3_Z976.html">第3話 はこちら</a><br>
+・<a href="../DMA_4_Z1002/DMA_4_Z1002.html">第4話 はこちら</a><font style="color: #ffd700;"> ← NEXT</font><br>
+・<a href="../DMA_5_Z1040/DMA_5_Z1040.html">第5話 はこちら</a><br>
+<br>
+
+<hr>
+
+<h3>Archive Note：</h3>
+こちらは X68000 Z コミュニティサイト(Z-CLUB) 過去投稿を修正加筆したものです。<br>
+基本的に当時の状況に基づいた内容になっています。<br>
+元投稿：<br>
+<a href="https://dev.zuiki.com/project-z/community/post/detail/976">https://dev.zuiki.com/project-z/community/post/detail/976</a><br>
+<a href="https://dev.zuiki.com/project-z/community/post/detail/977">https://dev.zuiki.com/project-z/community/post/detail/977</a><br>
+<a href="https://dev.zuiki.com/project-z/community/post/detail/978">https://dev.zuiki.com/project-z/community/post/detail/978</a><br>
 <br>
 <br>
 <br>

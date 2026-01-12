@@ -2,26 +2,18 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>SEN::DAC</title>
+    <title>GDEV 0 | SEN::DAC</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="icon" href="../favicon.png" type="image/png">
 </head>
 
 <body>
 <!-- サイト全体のタイトル リンクを指定しているので改めてテキストの色指定をしている-->
-<h1><a href="../index.html" style="color: #00ff83; text-decoration: none;">SEN::DAC - playground -</a></h1>
+<h1><a href="../index.html" style="color: #00ff83; text-decoration: none;">SEN::DAC - Laboratory -</a></h1>
 
 <!-- ページのタイトル -->
 <h2>ゲーム制作 進捗報告 ＃0</h2>
 <img src="17324281974525201.png" alt="表紙画像" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
-
-<h3>Archive Note：</h3>
-こちらは X68000 Z コミュニティサイト(Z-CLUB) 投稿記事の再構成ログです。<br>
-<br>
-はじめてX68000用のゲームソフトを作成した際の記録です(作品の公開自体が初でした)。<br>
-当時の試行錯誤を尊重し、内容や知見は投稿時点のものをベースとしています。<br>
-元投稿：<a href="https://dev.zuiki.com/project-z/community/post/detail/1257">https://dev.zuiki.com/project-z/community/post/detail/1257</a><br>
-<br>
 
 <h3>2024-11-24 投稿：</h3>
 
@@ -231,14 +223,16 @@ X68000は基本10MHz動作ですが、上位機種であるXVIの16MHzモード�
 <br>
 
 これが、PC用のゲームになりますと実行環境は様々ですので、以下のような処理が必要になります。<br>
+<br>
 
-<p style="color: #f4a460;">
+<font style="color: #f4a460;">
 ※注：<br>
 以下 FPS(ゲーム速度)の制御に関しては、この当時に使用していた手法を書かせていただいています。<br>
 <br>
 X68000におけるゲームプログラミングではGPIPレジスタ($E88001)のV-DISPビットを確認する手法が一般的かと思われます(Inside X68000 P.81を参照)。<br>
-Z-CLUBにてアドバイスをいただき、その後このV-DISPを確認する手法に変更したという経緯があります。
-</p>
+Z-CLUBにてアドバイスをいただき、その後このV-DISPを確認する手法に変更したという経緯があります。<br>
+</font>
+<br>
 
 1秒間に処理を実行したい回数をnとして、1秒(1000ms)÷nで "1回の処理で使える時間" を算出します。<br>
 <br>
@@ -330,7 +324,14 @@ if(現在時 < 計測開始時){ 現在時 += 24時間; }
 <br>
 
 僕の方でも何とかして実機、XM6、Zで同じ動作にならないか、これから試行錯誤してみようと思っています。<br>
+<br>
 
+<hr>
+
+<h3>Archive Note</h3>
+こちらは X68000 Z コミュニティサイト(Z-CLUB) 過去投稿を修正加筆したものです。<br>
+基本的に当時の状況に基づいた内容になっています。<br>
+元投稿：<a href="https://dev.zuiki.com/project-z/community/post/detail/1257">https://dev.zuiki.com/project-z/community/post/detail/1257</a><br>
 <br>
 <br>
 <br>
