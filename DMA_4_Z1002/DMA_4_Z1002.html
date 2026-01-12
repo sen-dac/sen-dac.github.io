@@ -237,6 +237,7 @@ void main(void)
     B_SUPER(s4_ssp);                            // 保護機能：有効
 }
 </code></pre>
+<br>
 
 main()内で呼んでいる vd_g_BSP_DmaInit() の引数は 転送元と転送先の先頭アドレス、次に転送元、転送先共に1回転送を行う毎にアドレスが進む(DMA_ADDR_INC)ようにして、その次の引数はデバイスポートサイズですね。<br>
 <br>
