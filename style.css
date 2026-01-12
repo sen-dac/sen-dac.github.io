@@ -62,13 +62,24 @@ pre code span {
 /*************************************************************/
 /* コードブロックの横スクロール(スマホ表示対策)              */
 /*************************************************************/
-pre, code {
-    /* 自動改行を無効にする */
-    white-space: pre;
-    /* 横方向にはみ出した場合にスクロールバーを表示する */
+pre {
+    background-color: #2d2d2d;
+    padding: 10px;
+    border-radius: 3px;
+    
+    /* 重要：親要素の幅を100%に固定し、はみ出た分をスクロールさせる */
+    width: 100%;
+    box-sizing: border-box; 
     overflow-x: auto;
-    /* ブロック要素として表示 */
     display: block;
-    /* スマートフォンでのスクロールを滑らかにする */
-    -webkit-overflow-scrolling: touch;
+
+    /* スマホで横揺れを防ぐ */
+    white-space: pre; 
+}
+
+pre code {
+    /* code側は親(pre)に従う */
+    display: inline-block; /* blockではなくinline-blockにすることで内容の幅を保持 */
+    min-width: 100%;
+    white-space: pre !important;
 }
