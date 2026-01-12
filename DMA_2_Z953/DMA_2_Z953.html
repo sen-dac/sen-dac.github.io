@@ -237,11 +237,10 @@ X68000ではFD,HD,ADPCMは全て8ビットポート、メモリは16ビットポ
 <br>
 C言語で言うと、例えば以下のように定義したとして。。。<br>
 
-<pre><code>
-unsigned char hoge[10];<br>
-unsigned char fuga[10];<br>
-unsigned char piyo[10];<br>
-</code></pre>
+<pre>unsigned char hoge[10];
+unsigned char fuga[10];
+unsigned char piyo[10];
+</pre>
 
 ここで、hogeだけを転送した場合は、1ブロックの転送になります。<br>
 hogeとpiyoを転送した場合は、2ブロック(複数ブロック)の転送になります。<br>

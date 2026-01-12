@@ -103,7 +103,7 @@ void main(void)
 <br>
 
 実行結果：<br>
-<pre><code>--- DMA転送 実行前 ---
+<pre>--- DMA転送 実行前 ---
 転送元 : X68000 Z
 転送先 : HOGE_FUGA_PIYO_ABCD
 
@@ -112,7 +112,7 @@ DMA転送開始!!
 --- DMA転送 実行後 ---
 転送元 : X68000 Z
 転送先 : X68000 ZA_PIYO_ABCD
-</code></pre>
+</pre>
 
 あ...？あれっ？？何？？？ "X68000 ZA_PIYO_ABCD" って？！<br>
 <br>
@@ -122,15 +122,15 @@ DMA転送開始!!
 <br>
 
 変更前：
-<pre><code>DMAC2CH_MTC = 0x08;	// 転送元が8文字なので転送回数を8回に設定</code></pre>
+<pre>DMAC2CH_MTC = 0x08;	// 転送元が8文字なので転送回数を8回に設定</pre>
 変更後：
-<pre><code>DMAC2CH_MTC = 0x09;	// 転送元が8文字なので転送回数を9回に設定(8文字 + null文字)</code></pre>
+<pre>DMAC2CH_MTC = 0x09;	// 転送元が8文字なので転送回数を9回に設定(8文字 + null文字)</pre>
 
 修正が終わったら再度、コンパイルして実行してみましょう。<br>
 
 <br>
 実行結果(修正後)：<br>
-<pre><code>--- DMA転送 実行前 ---
+<pre>--- DMA転送 実行前 ---
 転送元 : X68000 Z
 転送先 : HOGE_FUGA_PIYO_ABCD
 
@@ -139,7 +139,7 @@ DMA転送開始!!
 --- DMA転送 実行後 ---
 転送元 : X68000 Z
 転送先 : X68000 Z
-</code></pre>
+</pre>
 
 よし！大成功ですね！！<br>
 <br>
