@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>アーカイブファイル(*.a)とライブラリファイル(*.l) | SEN::DAC</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="icon" href="../favicon.png" type="image/png">
+</head>
+
+<body>
+<!-- サイト全体のタイトル リンクを指定しているので改めてテキストの色指定をしている-->
+<h1><a href="../index.html" style="color: #00ff83; text-decoration: none;">SEN::DAC - Laboratory -</a></h1>
+
+<!-- ページのタイトル -->
+<h2>アーカイブファイル(*.a)とライブラリファイル(*.l)</h2>
+
+<h3>2024-12-22 投稿：</h3>
+
+GCC環境構築の際にlibgnu.aをGNULIB.Lに変換したい場合があると思います。<br>
+<br>
+また、環境構築後もmakefileの1行が長くなると正しい動作をしなくなるので.oファイルを.lにまとめたい場合があると思います。<br>
+<br>
+何かと登場する.aファイルと.lファイルについての覚書です。<br>
+<br>
+
+<h3>アーカイブファイル(*.a)とは何なのか？</h3>
+
+アーカイブファイル(*.a)は、アーカイバ(AR.X)により、単に複数ファイルを1つにまとめたファイルです。<br>
+テキスト形式のファイルと、バイナリ形式のオブジェクトファイル(*.o)を扱う事ができます。<br>
+1つのアーカイブファイルの中でテキストファイルとオブジェクトファイルを混在して扱うことはできません。<br>
+また、テキストファイルの拡張子は*.sとしてください。<br>
+<br>
+
+<h3>ライブラリファイル(*.l)とは何なのか？</h3>
+
+ライブラリファイル(*.l)は、ライブラリアン(LIB.X)により、複数ファイルを1つにまとめたファイルです。<br>
+アーカイブファイル(*.a)と比べて、リンク作業の効率が良くなっています。<br>
+たぶんバイナリ形式のオブジェクトファイル(*.o)しか扱う事ができません。<br>
+<br>
+ライブラリアン(LIB.X)がサポートされたのはXC ver2.0からで、それ以前はアーカイバ(AR.X)で代用していました。<br>
+書籍『X68000マシン語プログラミング入門編』ではアーカイブファイル(*.a)の事を"ライブラリファイルもどき" と言っています。<br>
+これは、ライブラリファイル(*.l)の代用としての用途でアーカイブファイル(*.a)使った場合の話だと思います。<br>
+<br>
+
+<h3>必要なツール</h3>
+
+・アーカイバ    ：AR.X  アーカイブファイル(*.a)を生成します。<br>
+・ライブラリアン：LIB.X ライブラリファイル(*.l)を生成します。<br>
+<br>
+上記2つ、どちらも以下でダウンロードできるXC2101.LZH(XC ver2.1 システムディスク 1 )に含まれています。<br>
+<a href="http://retropc.net/x68000/software/sharp/xc21/">http://retropc.net/x68000/software/sharp/xc21/</a><br>
+<br>
+余談：<br>
+もともと僕が所持していたXC(ver表記無し)にはAR.XはあるもののLIB.Xがありませんでした。<br>
+また、そのXCに付属していたアセンブラマニュアル(ver表記無し)には P.156～に AR.Xに関する説明がありますが、LIB.Xに関する記載は一切見当たりません。<br>
+恐らくこのXC及び付属マニュアル類は、LIB.XがサポートされるXC ver2.0以前の物なのでしょう。<br>
+<br>
+
+<h3>ツール(AR.X / LIB.X)の使い方</h3>
+
+AR.XとLIB.Xの使い方は、ほとんど同じです。<br>
+<br>
+ファイル名は複数個指定できます。<br>
+すでに同名のアーカイブ(ライブラリ)ファイルが存在する場合はオブジェクトの追加・置き換えが行われます。<br>
+<br>
+>AR [スイッチ] アーカイブファイル名 [ファイル名...]<br>
+>LIB [スイッチ] ライブラリファイル名 [ファイル名...]<br>
+<br>
+<b>・AR.X / LIB.X 共に指定できるスイッチ</b><br>
+<pre>
+    /b バックアップファイルの作成
+    /u ファイルの更新(デフォルト)
+    /x ファイルの取り出し
+    /d ファイルの削除
+    /l リスト出力
+    /i file インダイレクト ファイルの指定
+    /v バーポーズモード
+</pre>
+<br>
+
+<b>・AR.X のみ指定できるスイッチ</b><br>
+<pre>
+    /a ASCIIファイルモード
+</pre>
+<br>
+
+<b>・LIB.X のみ指定できるスイッチ</b><br>
+<pre>
+    /m nn 最大シンボル数(201<nn<65536)<br>
+</pre>
+<br>
+
+<h3>実際に触ってみる(練習)</h3>
+
+念のためHDDイメージ(*.HDSファイル)のバックアップを取ってから実施しましょう。<br>
+<br>
+
+あと、AR.XとLIB.Xをパスの通っているディレクトリに置いてください。<br>
+<br>
+
+今回は、libgnu.aに対して(何でも良いのですが)AR.XとLIB.Xでアレやコレやします。<br>
+以下のURLにてgnub1502.tgzをダウンロードしてください。<br>
+<a href="https://www.vector.co.jp/soft/dl/x68/prog/se023312.html">https://www.vector.co.jp/soft/dl/x68/prog/se023312.html</a><br>
+<br>
+
+解凍すると色々入っていますが、libgnu.aだけ残して、他はポイです。<br>
+<br>
+
+適当にA:ドライブ(HDD)直下へlibgnu.a放り込みます。<br>
+そして、以下のように打ち込んでみましょう。<br>
+
+<br>
+<pre>A:\>ar /l libgnu.a</pre>
+<br>
+
+すると、ばば～っと*.oファイル名が表示されたはずです。<br>
+勝手にスクロールしてしまい最初の方が分かりませんが、これがlibgnu.aの中に詰まっている*.oファイルの一覧(/l リスト出力)です。<br>
+<br>
+
+では、ここで今見えている下の方の・・・適当にxordi3.oとtruncdfsf2.oを取り出してみますか。<br>
+/xでファイルの取り出しです。<br>
+
+<br>
+<pre>A:\>ar /x libgnu.a xordi3.o truncdfsf2.o</pre>
+<br>
+
+A:\>dirしてみるとxordi3.oとtruncdfsf2.o、2つのファイルが増えていますね。<br>
+無事にlibgnu.aからxordi3.oとtruncdfsf2.oを取り出せたようです。<br>
+<br>
+
+もう一度libgnu.aの中身を見てみましょう。<br>
+せっかくなので、/vのバーポーズモードも一緒に指定してみましょう。<br>
+
+<br>
+<pre>A:\>ar /l /v libgnu.a</pre>
+<br>
+
+再びリストが表示されましたが、今回は/v スイッチにより、より細かい情報が表示されていますね。<br>
+ここで注目なのが、先ほど取り出したはずのxordi3.oとtruncdfsf2.oが、まだlibgnu.aの中にいるという事ですね。<br>
+"取り出す"なんて説明だから、てっきり"移動"なのかと思いきや、実際は"コピー"されるようですね。<br>
+<br>
+
+では、次は以下のようにしてみましょう。<br>
+/u ファイルの更新を指定すると、アーカイブファイル名の後に続くファイルがアーカイブファイルに格納されます。<br>
+
+<br>
+<pre>A:\>ar /u hoge.a xordi3.o</pre>
+<br>
+
+ディレクトリ内にhoge.aが新たに作られましたね。<br>
+存在しないアーカイブ(ライブラリ)ファイル名を指定した場合は、新たなアーカイブ(ライブラリ)ファイルが自動で作られます。<br>
+hoge.aの中身を見てみましょう。<br>
+
+<br>
+<pre>A:\>ar /l hoge.a</pre>
+<br>
+
+ちゃんとhoge.aの中にxordi3.oが入っているのが確認できたでしょうか？<br>
+続けて以下のようにしてみましょう。<br>
+
+<br>
+<pre>A:\>ar hoge.a truncdfsf2.o</pre>
+<br>
+
+スイッチを何も指定していない場合は/u ファイルの更新とみなされます。<br>
+すでに存在しているアーカイブ(ライブラリ)ファイル名を指定した場合は、そのアーカイブ(ライブラリ)ファイルに対してオブジェクトが追加されます。<br>
+<br>
+
+再びhoge.aの中身を確認してみましょう。<br>
+
+<br>
+<pre>A:\>ar /l hoge.a</pre>
+<br>
+
+hoge.aの中にxordi3.oが入っていて、更にtruncdfsf2.oが追加されているはずです。<br>
+<br>
+
+では、次はLIB.Xの方を使ってみましょう。<br>
+新たなライブラリファイルfuga.lを作成してxordi3.oとtruncdfsf2.oを入れてみます。<br>
+その場合は以下のようになりますね。<br>
+
+<br>
+<pre>A:\>lib fuga.l xordi3.o truncdfsf2.o</pre>
+<br>
+
+fuga.lの中身を見てみましょう。<br>
+
+<br>
+<pre>A:\>lib /l fuga.l</pre>
+<br>
+
+xordi3.o と truncdfsf2.oが入っていますよね？<br>
+最後にfuga.lからxordi3.oだけを削除してみますか。<br>
+/d でファイルの削除です。<br>
+
+<br>
+<pre>A:\>lib /d fuga.l xordi3.o</pre>
+<br>
+
+再度、fuga.lの中身を確認(くどい？)。<br>
+
+<br>
+<pre>A:\>lib /l fuga.l</pre>
+<br>
+
+ちゃんと削除できましたでしょうか？<br>
+<br>
+
+ファイルを追加する(/u)、取り出す(/x)、削除する(/d)、中身を確認する(/l)<br>
+これらができれば、もう大体はアーカイバとライブラリアンの使い方で困る事はないと思います。<br>
+<br>
+
+<h3>アーカイブファイル(*.a)⇔ライブラリファイル(*.l)の相互変換</h3>
+
+*.aと*.lの相互変換は、要は変換元から中身のオブジェクトファイル(*.o)を全て取り出して、変換先に全て追加すれば良いという事になります。<br>
+
+<br><hr>
+※注：<br>
+練習と理解のため今から超面倒くさい事を始めます。<br>
+ただ、実は*.a → *.lに限っては一発で変換できます。<br>
+しかし、逆に*.l → *.a変換は(たぶん)一発変換ができないので今から書く手順は知っていた方が良いです。<br>
+(他にもっと良い方法があるかも知れませんが)<br>
+詳しくは後述。<br>
+<hr><br>
+
+先ずは、変換元にどのような名前のオブジェクトファイル(*.o)がいるのか全て洗い出す必要があります。<br>
+/l リスト出力で確認できるはずですが、困りましたね。<br>
+そう、数が多いと勝手にスクロールしてしまい、最初の方のオブジェクトファイル名が確認できません。<br>
+(これ、途中で何かキーを押すまで止める方法とか無いのでしょうか？)<br>
+<br>
+こんなとき、実は良い方法があります。<br>
+以下のようにしてみましょう。<br>
+<br>
+ええっと、今回は取り合えずlibgnu.aを*.lに変換するていです。<br>
+
+<br>
+<pre>A:\>ar /l libgnu.a >list.txt</pre>
+<br>
+
+なんと！ list.txtというテキストファイルが作られて、中にはオブジェクトファイル(*.o)の一覧が書かれているではありませんか！!<br>
+この素晴らしい機能の事を"リダイレクト機能"といいます。<br>
+<br>
+多くのコマンドは画面を標準出力としていますから、なにも指定しなければ出力は画面に表示されます。<br>
+しかし、このように">"を使うことにより標準出力に出されるべきデータをファイルや他のデバイスにそのまま転送する事ができるのです。<br>
+これが"出力のリダイレクト"です(入力のリダイレクトもあります)。<br>
+<br>
+因みにリダイレクト機能は、コンパイラやアーカイバやライブラリアンは無関係でHuman68kの機能です。<br>
+<br>
+さぁ、取り出すべきオブジェクトファイル名の一覧も手に入った事ですし、頑張って取り出していきますか。<br>
+
+<br><pre>
+A:\>ar /x libgnu.a patchlevel.o
+A:\>ar /x libgnu.a _bltin_new.o
+A:\>ar /x libgnu.a adddf3.o
+</pre><br>
+
+・・・辛ァいッ！しかもこれ *.lファイル側の登録(追加)も、この作業やるんですか？！<br>
+辛すぎるでしょう(泣<br>
+<br>
+という訳で、先ほどのlist.txtを素にして、ここはバッチファイルを作るのが良いでしょう。<br>
+一旦、Windows側にもっていってイマドキのテキストエディタの便利コピペ機能を駆使してサクッと作ってしまいましょう。<br>
+誰がどんな気分のときに作っても以下のような感じになると思います。<br>
+
+<br><pre>
+ar /x libgnu.a patchlevel.o
+ar /x libgnu.a _bltin_new.o
+ar /x libgnu.a adddf3.o
+：
+省略
+：
+ar /x libgnu.a subdf3.o
+ar /x libgnu.a truncdfsf2.o
+ar /x libgnu.a xordi3.o
+
+lib /u gnulib.l patchlevel.o
+lib /u gnulib.l _bltin_new.o
+lib /u gnulib.l adddf3.o
+：
+省略
+：
+lib /u gnulib.l subdf3.o
+lib /u gnulib.l truncdfsf2.o
+lib /u gnulib.l xordi3.o
+</pre><br>
+
+最後に*.oファイルは消しておきたいところですね。<br>
+<br>
+バッチ実行後に手動で >del *.o としても良いですし、関係ない*.oファイルが消える可能性がイヤならばバッチファイルの中に1つ1つ消すように書いておくのもアリだと思います。<br>
+<br>
+
+：<br>
+<br>
+
+あと、実は*.a → *.l変換については<br>
+
+<br>
+<pre>>lib GNULIB.L libgnu.a</pre>
+<br>
+
+と、するだけで一発でできます。<br>
+しかしながら以下のように、逆に*.l → *.a変換を試みたところ<br>
+
+<br><pre>
+>ar libgnu.a GNULIB.L
+
+not object file GNULIB.L
+</pre><br>
+
+と言われて失敗しました。<br>
+(もしかしたら何か別の方法があるのかも知れませんが)<br>
+<br>
+
+：<br>
+<br>
+
+さて、ここまでの学習で得た知識のお陰で、冒頭でお話したmakeファイルの1行が長くなりすぎると正しく動作してくれないという問題を、以下のようなバッチファイルを作成して回避する事ができました。<br>
+あまり変更する事が無い.cファイルは事前にライブラリ(ここではSENLIB.L)にまとめておき、実行ファイル(game.x)生成時に取り込む(-lsen)ようにしています。<br>
+<br>
+
+rebuild.bat<pre>
+del *.bak /Y
+del *.s /Y
+del *.o /Y
+del *.x /Y
+del *.l /Y
+gcc -c -O ./src/crt/crt.c -liocs -ldos -lbas
+gcc -c -O ./src/dma/dma.c -liocs -ldos -lbas
+gcc -c -O ./src/draw/draw.c -liocs -ldos -lbas
+gcc -c -O ./src/draw/spbg.c -liocs -ldos -lbas
+gcc -c -O ./src/input/input.c -liocs -ldos -lbas
+lib SENLIB.L crt.o dma.o draw.o spbg.o input.o
+make
+</pre>
+<br>
+
+make<pre>
+game.x: main.o ball.o shot.o racket.o item.o block.o stitle.o splay.o send.o
+	gcc -z-heap=200000 -o game.x -lzm -liocs -ldos -lbas -lsen main.o ball.o shot.o racket.o item.o block.o stitle.o splay.o send.o
+
+main.o: ./src/main.c
+	gcc -c -O ./src/main.c -liocs -ldos -lbas
+
+ball.o: ./src/object/ball.c
+	gcc -c -O ./src/object/ball.c -liocs -ldos -lbas
+
+shot.o: ./src/object/shot.c
+	gcc -c -O ./src/object/shot.c -liocs -ldos -lbas
+
+racket.o: ./src/object/racket.c
+	gcc -c -O ./src/object/racket.c -liocs -ldos -lbas
+
+item.o: ./src/object/item.c
+	gcc -c -O ./src/object/item.c -liocs -ldos -lbas
+
+block.o: ./src/object/block.c
+	gcc -c -O ./src/object/block.c -liocs -ldos -lbas
+
+stitle.o: ./src/scene/stitle.c
+	gcc -c -O ./src/scene/stitle.c -liocs -ldos -lbas
+
+splay.o: ./src/scene/splay.c
+	gcc -c -O ./src/scene/splay.c -liocs -ldos -lbas
+
+send.o: ./src/scene/send.c
+	gcc -c -O ./src/scene/send.c -liocs -ldos -lbas
+</pre>
+<br>
+
+<h3>参考文献</h3>
+
+書籍 X68000マシン語プログラミング入門編 (P.221)<br>
+著：村田敏幸<br>
+<br>
+
+X68000のGCCの導入について<br>
+https://sanohito.hatenablog.com/entry/2022/04/27/112207<br>
+<br>
+
+【今更X68000入門】 GCC(HAS,HLK)の導入【X68000Z】【初心者向け】<br>
+https://www.youtube.com/watch?v=Dv_7YBH677A の概要欄<br>
+<br>
+
+【解決しました】GCCの-lbasオプションについて<br>
+https://dev.zuiki.com/project-z/community/post/detail/916<br>
+<br>
+
+<hr>
+
+<h3>Archive Note</h3>
+こちらは X68000 Z コミュニティサイト(Z-CLUB) 過去投稿を修正加筆したものです。<br>
+基本的に当時の状況に基づいた内容になっています。<br>
+元投稿：<a href="https://dev.zuiki.com/project-z/community/post/detail/1280">https://dev.zuiki.com/project-z/community/post/detail/1280</a><br>
+<br>
+<br>
+<br>
+<!-- (C)表記をしない方針とするものの、テキストの終端は明示する-->
+<div style="color: #00ff83;">[EOF]</div>
+</body>
+</html>
